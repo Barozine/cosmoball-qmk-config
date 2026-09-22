@@ -1,11 +1,9 @@
 # cosmoball
 
-*A Cosmos Dactyl build using Lemon Wired Controllers with QMK firmware featuring a unique 71 key matrix, RGB underglow, and under-palm trackball similar to the keyball61 (currently nonfuntional)*
+*A Cosmos Dactyl build using Lemon Wired Controllers with QMK firmware featuring a unique 71 key matrix, RGB underglow, and under-palm trackball similar to the keyball61.*
 
-# Current trackball status: Nonfuntional
-* No IR light being emitted (confirmed with phone camera)
-* QMK firmware seems to acknowledge initialization of the PMW3389
-* **Issue appears to be related to LED_P on Pin 15, which is receiving 0v.**
+# Current trackball status: Funtional!
+* Issue was a break in continuity between Pin 15 and its resistor. After heating it with the soldering iron, continuity was restored and everything started working properly!
 
 # Steps taken to fix trackball issues:
 * Continuity tested between the breakout board and the sensor's pins
