@@ -8,11 +8,19 @@
 #define RELAY_PIN 11
 #define RELAY_ON 1
 #define RELAY_OFF 0
+#define RGB_COUNT 54
 
 bool last_led_state;
 bool set_scrolling = false;
 
- 
+// Modify these values to adjust the scrolling speed
+#define SCROLL_DIVISOR_H 8.0
+#define SCROLL_DIVISOR_V 1.6
+
+// Variables to store accumulated scroll values
+float scroll_accumulated_h = 0;
+float scroll_accumulated_v = 0;
+
  enum layers {
 	 _BASE,
 	 _CODE,
@@ -38,8 +46,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_CAPS,   KC_1,           KC_2,     KC_3,    KC_4,           KC_5,  C(KC_X),        TG(_BLND), KC_6,     KC_7,           KC_8,    KC_9,   KC_0,    TO(_BASE),
 	KC_TAB,    KC_B,           KC_L,     KC_D,    KC_C,           KC_V,  KC_ENT,         TG(_GM1),  KC_QUOT,  KC_Y,           KC_O,    KC_U,   KC_J,    LT(_NAV, KC_EQL),
 	KC_LSFT,   LT(_NAV, KC_N), KC_R,     KC_T,    SFT_T(KC_S),    KC_G,  KC_DEL,         CW_TOGG,   KC_P,     SFT_T(KC_H),    KC_A,    KC_E,   KC_I,    KC_Q,
-	KC_LCTL,   CTL_T(KC_X),    KC_BSPC,  KC_M,    LT(_SYM, KC_W), KC_Z,                             KC_K,     LT(_SYM, KC_F), KC_COMM, KC_DOT, KC_SLSH, KC_MINS,
-	           MS_BTN1,        MS_BTN1,  MS_BTN2, KC_SPC,                                KC_SPC,    MS_BTN1,                                   MS_BTN2, DRAG_SCROLL,
+	KC_LCTL,   CTL_T(KC_X),    KC_BSPC,  KC_M,    LT(_SYM, KC_W), KC_Z,                             KC_K,     LT(_SYM, KC_F), KC_SPC,  KC_DOT, KC_COMM, KC_SLSH,
+	           MS_BTN1,        MS_BTN1,  MS_BTN2, KC_SPC,                                KC_SPC,    MS_BTN1,                                   DRAG_SCROLL, MS_BTN2, 
 			                                      LT(_SYM, KC_ENT), KC_SPC,              S(KC_MINS), MS_BTN1
 	),
 	
@@ -92,8 +100,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	             QK_BOOT, XXXXXXX, XXXXXXX, UG_HUED, UG_HUEU,  
 	KC_NUM_LOCK, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,            _______, UG_TOGG, KC_F9,   KC_F10,  KC_F11,  KC_F12,  QK_BOOT,
 	_______,     XXXXXXX, KC_HOME, KC_UP,   KC_END,  KC_PGUP, XXXXXXX,            _______, XXXXXXX, KC_F5,   KC_F6,   KC_F7,   KC_F8,   XXXXXXX,
-	_______,     _______, KC_LEFT, KC_DOWN, KC_RGHT, KC_PGDN, XXXXXXX,            _______, XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_RSFT,
-	_______,     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                              XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_RALT,
+	_______,     _______, KC_LEFT, KC_DOWN, KC_RGHT, KC_ENT,  XXXXXXX,            _______, XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_RSFT,
+	_______,     XXXXXXX, XXXXXXX, XXXXXXX, KC_DEL,  KC_PGDN,                              XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_RALT,
 	             _______, _______, _______,     _______,                          KC_RSFT,      _______,                _______,   _______,
 			                                    _______, QK_LLCK,                 KC_RCTL,      _______
 	),
@@ -130,14 +138,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     debug_enable=true;
     debug_mouse=true;
-	/* Disabled until sensor has basic function
 	if (set_scrolling) {
-        mouse_report.h = mouse_report.x;
-        mouse_report.v = mouse_report.y;
+        // Calculate and accumulate scroll values based on mouse movement and divisors
+        //scroll_accumulated_h += (float)mouse_report.x / SCROLL_DIVISOR_H;
+        scroll_accumulated_v += (float)mouse_report.y / SCROLL_DIVISOR_V;
+
+        // Assign integer parts of accumulated scroll values to the mouse report
+        mouse_report.h = 0;//(int8_t)scroll_accumulated_h;
+        mouse_report.v = (int8_t)scroll_accumulated_v;
+
+        // Update accumulated scroll values by subtracting the integer parts
+        scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
+        scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
+
+        // Clear the X and Y values of the mouse report
         mouse_report.x = 0;
         mouse_report.y = 0;
     }
-	*/
     return mouse_report;
 }
 
@@ -443,31 +460,31 @@ uint8_t pmw33xx_srom_get_byte(uint16_t position) {
 /* Lighting Layers */
 
 const rgblight_segment_t PROGMEM my_capslock_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 20, HSV_WHITE}       // Light 20 LEDs, starting with LED 0
+    {0, RGB_COUNT, HSV_WHITE}       // Light 20 LEDs, starting with LED 0
 );
 const rgblight_segment_t PROGMEM my_code_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 20, HSV_GOLDENROD}
+    {0, RGB_COUNT, HSV_GOLDENROD}
 );
 const rgblight_segment_t PROGMEM my_blend_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 20, HSV_AZURE}
+    {0, RGB_COUNT, HSV_AZURE}
 );
 const rgblight_segment_t PROGMEM my_fusion_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 20, HSV_CORAL}
+    {0, RGB_COUNT, HSV_CORAL}
 );
 const rgblight_segment_t PROGMEM my_reserve_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 20, HSV_PINK}
+    {0, RGB_COUNT, HSV_PINK}
 );
 const rgblight_segment_t PROGMEM my_symbol_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 20, HSV_RED}
+    {0, RGB_COUNT, HSV_RED}
 );
 const rgblight_segment_t PROGMEM my_nav_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 20, HSV_CYAN}
+    {0, RGB_COUNT, HSV_CYAN}
 );
 const rgblight_segment_t PROGMEM my_game1_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 20, HSV_TEAL}
+    {0, RGB_COUNT, HSV_TEAL}
 );
 const rgblight_segment_t PROGMEM my_game2_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, 20, HSV_TURQUOISE}
+    {0, RGB_COUNT, HSV_TURQUOISE}
 );
 
 const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
@@ -527,7 +544,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case DRAG_SCROLL:
-			rgblight_blink_layer_repeat(4, 200, set_scrolling ? 2:1);
+            rgblight_blink_layer_repeat(4, 200, set_scrolling ? 2:1);
             break;
     }
 }

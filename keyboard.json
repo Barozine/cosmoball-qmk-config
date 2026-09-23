@@ -45,9 +45,9 @@
         "default": {
             "hue":12
         },
-        "led_count": 20,
+        "led_count": 54,
         "split": true,
-        "split_count": [10, 10],
+        "split_count": [27, 27],
         "layers": {
             "enabled": true,
             "blink": true,
