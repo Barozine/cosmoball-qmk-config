@@ -15,7 +15,7 @@ bool set_scrolling = false;
 
 // Modify these values to adjust the scrolling speed
 #define SCROLL_DIVISOR_H 8.0
-#define SCROLL_DIVISOR_V 1.6
+#define SCROLL_DIVISOR_V -1.6
 
 // Variables to store accumulated scroll values
 float scroll_accumulated_h = 0;
@@ -32,6 +32,8 @@ float scroll_accumulated_v = 0;
 	 _BL2,
 	 _GM1,
 	 _GM2,
+     _MOUS,
+     _MS2,
  };
 
  enum custom_keycodes {
@@ -47,8 +49,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	KC_TAB,    KC_B,           KC_L,     KC_D,    KC_C,           KC_V,  KC_ENT,         TG(_GM1),  KC_QUOT,  KC_Y,           KC_O,    KC_U,   KC_J,    LT(_NAV, KC_EQL),
 	KC_LSFT,   LT(_NAV, KC_N), KC_R,     KC_T,    SFT_T(KC_S),    KC_G,  KC_DEL,         CW_TOGG,   KC_P,     SFT_T(KC_H),    KC_A,    KC_E,   KC_I,    KC_Q,
 	KC_LCTL,   CTL_T(KC_X),    KC_BSPC,  KC_M,    LT(_SYM, KC_W), KC_Z,                             KC_K,     LT(_SYM, KC_F), KC_SPC,  KC_DOT, KC_COMM, KC_SLSH,
-	           MS_BTN1,        MS_BTN1,  MS_BTN2, KC_SPC,                                KC_SPC,    MS_BTN1,                                   DRAG_SCROLL, MS_BTN2, 
-			                                      LT(_SYM, KC_ENT), KC_SPC,              S(KC_MINS), MS_BTN1
+	           MS_BTN3,        MS_BTN1,  MS_BTN2, KC_SPC,                                KC_SPC,    MS_BTN1,                                   DRAG_SCROLL, MS_BTN2, 
+			                                      LT(_SYM, KC_ENT), LT(_SYM, KC_ENT),              S(KC_MINS), MS_BTN1
 	),
 	
 	[_CODE] = LAYOUT(
@@ -90,8 +92,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[_SYM] = LAYOUT(
 	         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  
 	QK_LLCK, S(KC_1), S(KC_2), S(KC_3), S(KC_4), S(KC_5), XXXXXXX,                XXXXXXX, S(KC_6),   S(KC_7),    KC_LBRC,    KC_RBRC,    XXXXXXX,    _______,
-	_______, KC_PCMM, KC_P7,   KC_P8,   KC_P9,   KC_PPLS, KC_PAST,                XXXXXXX, KC_GRV,    S(KC_LBRC), S(KC_9),    S(KC_0),    S(KC_RBRC), XXXXXXX,
-	_______, KC_P0,   KC_P1,   KC_P2,   KC_P3,   KC_EQL,  KC_PSLS,                XXXXXXX, S(KC_GRV), XXXXXXX,    S(KC_SCLN), S(KC_SCLN), KC_SCLN,    XXXXXXX,
+	_______, KC_COMM, KC_P7,   KC_P8,   KC_P9,   KC_PPLS, KC_PAST,                XXXXXXX, KC_GRV,    S(KC_LBRC), S(KC_9),    S(KC_0),    S(KC_RBRC), XXXXXXX,
+	KC_BSPC, KC_P0,   KC_P1,   KC_P2,   KC_P3,   KC_EQL,  KC_PSLS,                XXXXXXX, S(KC_GRV), XXXXXXX,    S(KC_SCLN), S(KC_SCLN), KC_SCLN,    XXXXXXX,
 	_______, KC_PDOT, KC_P4,   KC_P5,   KC_P6,   KC_PMNS,                                  KC_EQL,    KC_MINS,    S(KC_COMM), S(KC_DOT),  KC_BSLS,    S(KC_BSLS),
 	         _______, _______, _______,     _______,                              _______,      _______,                                _______, _______,
 			                                _______, _______,                     _______,      _______
@@ -132,8 +134,31 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	         _______, _______, _______,     _______,                              _______,      _______,                _______, _______,
 			                                _______, _______,                     _______,      _______
 	),
+    [_MOUS] = LAYOUT(
+	         _______, _______, _______,     _______, _______,  
+	_______, _______, _______, _______,     _______, _______, _______,                _______, _______, _______, _______, _______, _______, _______,
+	_______, _______, _______, DRAG_SCROLL, C(KC_C), C(KC_V), _______,                _______, _______, _______, _______, _______, _______, _______,
+	_______, _______, MS_BTN3, MS_BTN1,     MS_BTN2, KC_ENT, _______,                _______, _______, _______, _______, _______, _______, _______,
+	_______, C(KC_X), _______, _______,     _______, _______,                         _______, _______, _______, _______, _______, _______,
+	         _______, _______, _______,              _______,                              _______,      _______,                _______, _______,
+			                                         _______, _______,                     _______,      _______
+	),
+	[_MS2] = LAYOUT(
+	         _______, _______, _______, _______, _______,  
+	_______, _______, _______, _______, _______, _______, _______,                _______, _______, _______, _______, _______, _______, _______,
+	_______, _______, _______, _______, _______, _______, _______,                _______, _______, _______, _______, _______, _______, _______,
+	_______, _______, _______, _______, _______, _______, _______,                _______, _______, _______, _______, _______, _______, _______,
+	_______, _______, _______, _______, _______, _______,                         _______, _______, _______, _______, _______, _______,
+	         _______, _______, _______,     _______,                              _______,      _______,                _______, _______,
+			                                _______, _______,                     _______,      _______
+	),
 };
 
+
+void pointing_device_init_user(void) {
+    set_auto_mouse_layer(_MOUS); // only required if AUTO_MOUSE_DEFAULT_LAYER is not set to index of <mouse_layer>
+    set_auto_mouse_enable(true);         // always required before the auto mouse feature will work
+}
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     debug_enable=true;
@@ -148,7 +173,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
         mouse_report.v = (int8_t)scroll_accumulated_v;
 
         // Update accumulated scroll values by subtracting the integer parts
-        scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
+        //scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
         scroll_accumulated_v -= (int8_t)scroll_accumulated_v;
 
         // Clear the X and Y values of the mouse report
@@ -161,11 +186,8 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (keycode == DRAG_SCROLL && record->event.pressed) {
         set_scrolling = !set_scrolling;
+        return false;
     }
-	dprintf("Pointing device status: %d\n",pointing_device_get_status());
-	debug_enable = true;
-    dprintf("SROM ID: %d\n", pmw33xx_read(0, REG_SROM_ID));
-    pmw33xx_write(0, REG_Config2, 0x00);
 
     return true;
 }
@@ -486,7 +508,12 @@ const rgblight_segment_t PROGMEM my_game1_layer[] = RGBLIGHT_LAYER_SEGMENTS(
 const rgblight_segment_t PROGMEM my_game2_layer[] = RGBLIGHT_LAYER_SEGMENTS(
     {0, RGB_COUNT, HSV_TURQUOISE}
 );
-
+const rgblight_segment_t PROGMEM my_mouse_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+    {0, RGB_COUNT, HSV_CHARTREUSE}
+);
+const rgblight_segment_t PROGMEM my_mouse2_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+    {0, RGB_COUNT, HSV_PINK}
+);
 const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
     my_code_layer,
     my_capslock_layer,
@@ -496,7 +523,9 @@ const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
     my_symbol_layer,
     my_nav_layer,
     my_game1_layer,
-	my_game2_layer
+	my_game2_layer,
+    my_mouse_layer,
+    my_mouse2_layer
 );
 
 void keyboard_post_init_user(void) {
@@ -538,13 +567,15 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     rgblight_set_layer_state(6, layer_state_cmp(state, _NAV));
     rgblight_set_layer_state(7, layer_state_cmp(state, _GM1));
 	rgblight_set_layer_state(8, layer_state_cmp(state, _GM2));
+    rgblight_set_layer_state(9, layer_state_cmp(state, _MOUS));
+    rgblight_set_layer_state(10, layer_state_cmp(state, _MS2));
     return state;
 }
 
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case DRAG_SCROLL:
-            rgblight_blink_layer_repeat(4, 200, set_scrolling ? 2:1);
+            rgblight_blink_layer_repeat(10, 200, set_scrolling ? 2:1);
             break;
     }
 }
